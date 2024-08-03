@@ -60,9 +60,9 @@
 				items={playlists ? playlists.map((p) => ({ label: p.name, value: p.id })) : []}
 				itemName="playlist"
 			/>
-			<Button disabled={!selectedPlaylist} on:click={() => goto(`/${selectedPlaylist}`)}
-				>Drop the shoe</Button
-			>
+			<Button disabled={!selectedPlaylist} on:click={() => goto(`/${selectedPlaylist}`)}>
+				Drop the shoe
+			</Button>
 		</div>
 		<Button disabled={loadingPlaylists} on:click={getPlaylists} variant="link" size="sm">
 			{loadingPlaylists ? 'Getting playlists...' : 'Get playlists'}

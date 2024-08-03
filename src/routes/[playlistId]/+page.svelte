@@ -3,6 +3,7 @@
 	import { PUBLIC_SPOTIFY_CLIENT_ID, PUBLIC_SPOTIFY_REDIRECT_URI } from '$env/static/public';
 	import Chart from '$lib/components/Chart.svelte';
 	import * as Alert from '$lib/components/ui/alert';
+	import { Button } from '$lib/components/ui/button';
 	import {
 		SpotifyApi,
 		type Playlist,
@@ -11,6 +12,7 @@
 		type User
 	} from '@spotify/web-api-ts-sdk';
 	import CircleAlert from 'lucide-svelte/icons/circle-alert';
+	import { stringify } from 'postcss';
 	import { onMount } from 'svelte';
 
 	type SortMethod = 'ascending' | 'descending' | 'mountain' | 'valley' | 'cinderella';
@@ -30,6 +32,7 @@
 	let isOwner = false;
 	let selectedSortMethod: SortMethod = 'ascending';
 	let tracks: (Track & { tempo: number })[] | null = null;
+	let originalTracks: (Track & { tempo: number })[] | null = null;
 
 	onMount(() =>
 		(async () => {
@@ -48,6 +51,7 @@
 				const { tempo } = await sdk.tracks.audioFeatures(playlist.tracks.items[i].track.id);
 				tracks.push({ ...playlist.tracks.items[i].track, tempo });
 			}
+			originalTracks = [...tracks];
 
 			loading = false;
 		})()
@@ -78,23 +82,42 @@
 		valley: () => [],
 		cinderella: () => []
 	};
+
+	const sortPlaylist = async () => {
+		if (!sdk || !playlist || !tracks) return;
+
+		switch (selectedSortMethod) {
+			case 'ascending':
+				tracks = tracks.sort((a, b) => a.tempo - b.tempo);
+				break;
+			case 'descending':
+				tracks = tracks.sort((a, b) => b.tempo - a.tempo);
+				break;
+			case 'mountain':
+				break;
+			case 'valley':
+				break;
+			case 'cinderella':
+				break;
+		}
+	};
 </script>
 
-{#if !loading}
-	{#if sdk && user && playlist}
-		<div class="container py-20">
-			<h1 class="mb-4 text-3xl font-bold">{playlist.name}</h1>
+{#if sdk && user && playlist}
+	<div class="container py-20">
+		<h1 class="mb-4 text-3xl font-bold">{playlist.name}</h1>
 
-			<div class="mb-4">
-				<Alert.Root variant="default">
-					<CircleAlert class="h-4 w-4" />
-					<Alert.Title>Heads up!</Alert.Title>
-					<Alert.Description>
-						You don't own this playlist. If you continue we'll make a new playlist for you.
-					</Alert.Description>
-				</Alert.Root>
-			</div>
+		<div class="mb-4">
+			<Alert.Root variant="default">
+				<CircleAlert class="h-4 w-4" />
+				<Alert.Title>Heads up!</Alert.Title>
+				<Alert.Description>
+					You don't own this playlist. If you continue we'll make a new playlist for you.
+				</Alert.Description>
+			</Alert.Root>
+		</div>
 
+		{#if !loading}
 			<div
 				class="mb-4 grid rounded-md bg-muted p-1"
 				style="grid-template-columns: repeat({sortMethods.length}, minmax(0, 1fr));"
@@ -118,11 +141,16 @@
 					playlistData={tracks.map((t, i) => {
 						if (!sdk) return { name: t.name, tempo: 0, track: i };
 
-						console.log({ tempo: t.tempo, track: i });
 						return { name: t.name ?? '', tempo: t.tempo, track: i };
 					})}
 				/>
+
+				<Button on:click={sortPlaylist}>Reorder Playlist</Button>
+				<Button
+					variant="secondary"
+					on:click={() => (tracks = originalTracks && [...originalTracks])}>Reset</Button
+				>
 			{/if}
-		</div>
-	{/if}
+		{/if}
+	</div>
 {/if}
