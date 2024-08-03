@@ -84,8 +84,38 @@
 				track: index + 1
 			}));
 		},
-		mountain: () => [],
-		valley: () => [],
+		mountain: () => {
+			if (!playlist) return [];
+			console.log('mountain');
+
+			let totalTracks = playlist.tracks.items.length;
+
+			const t = playlist.tracks.items.map((_, index) => {
+				const x = index / (totalTracks - 1);
+				return {
+					scale: -4 * x * x + 4 * x,
+					track: index + 1
+				};
+			});
+			console.log(t);
+			return t;
+		},
+		valley: () => {
+			if (!playlist) return [];
+			console.log('mountain');
+
+			let totalTracks = playlist.tracks.items.length;
+
+			const t = playlist.tracks.items.map((_, index) => {
+				const x = index / (totalTracks - 1);
+				return {
+					scale: 4 * x * x - 4 * x + 1,
+					track: index + 1
+				};
+			});
+			console.log(t);
+			return t;
+		},
 		cinderella: () => {
 			if (!playlist) return [];
 
@@ -94,7 +124,7 @@
 			return playlist.tracks.items.map((_, index) => {
 				const x = index / (totalTracks - 1);
 				return {
-					scale: 16 * x * x * x - 24 * x * x + 9 * x, // 16x^3 - 24x^2 + 9x
+					scale: 16 * x * x * x - 24 * x * x + 9 * x,
 					track: index + 1
 				};
 			});
@@ -111,10 +141,9 @@
 			case 'descending':
 				tracks = tracks.sort((a, b) => b.tempo - a.tempo);
 				break;
+			// same sort method for mountain, valley and cinderella
 			case 'mountain':
-				break;
 			case 'valley':
-				break;
 			case 'cinderella':
 				const minTempo = Math.min(...tracks.map((t) => t.tempo));
 				const maxTempo = Math.max(...tracks.map((t) => t.tempo));
@@ -124,7 +153,7 @@
 					...track,
 					scale: scale(track.tempo)
 				}));
-				const referenceTempos = methodData.cinderella().map((point) => point.scale);
+				const referenceTempos = methodData[selectedSortMethod]().map((point) => point.scale);
 				console.log('Reference: ', referenceTempos);
 
 				let currentDiff = 0;
