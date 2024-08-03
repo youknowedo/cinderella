@@ -31,8 +31,8 @@
 	let playlist: Playlist<Track> | null = null;
 	let isOwner = false;
 	let selectedSortMethod: SortMethod = 'ascending';
-	let tracks: (Track & { tempo: number })[] | null = null;
-	let originalTracks: (Track & { tempo: number })[] | null = null;
+	let tracks: { name: string; tempo: number }[] | null = null;
+	let originalTracks: { name: string; tempo: number }[] | null = null;
 
 	onMount(() =>
 		(async () => {
@@ -48,8 +48,14 @@
 
 			tracks = [];
 			for (let i = 0; i < playlist.tracks.items.length; i++) {
-				const { tempo } = await sdk.tracks.audioFeatures(playlist.tracks.items[i].track.id);
-				tracks.push({ ...playlist.tracks.items[i].track, tempo });
+				// Rate limit shii
+				// const { tempo } = await sdk.tracks.audioFeatures(playlist.tracks.items[i].track.id);
+				// tracks.push({ ...playlist.tracks.items[i].track, tempo });
+
+				tracks.push({
+					name: playlist.tracks.items[i].track.name,
+					tempo: Math.random() * 40
+				});
 			}
 			originalTracks = [...tracks];
 
@@ -80,7 +86,19 @@
 		},
 		mountain: () => [],
 		valley: () => [],
-		cinderella: () => []
+		cinderella: () => {
+			if (!playlist) return [];
+
+			let totalTracks = playlist.tracks.items.length;
+
+			return playlist.tracks.items.map((_, index) => {
+				const x = index / (totalTracks - 1);
+				return {
+					scale: 16 * x * x * x - 24 * x * x + 9 * x, // 16x^3 - 24x^2 + 9x
+					track: index + 1
+				};
+			});
+		}
 	};
 
 	const sortPlaylist = async () => {
@@ -98,6 +116,35 @@
 			case 'valley':
 				break;
 			case 'cinderella':
+				const minTempo = Math.min(...tracks.map((t) => t.tempo));
+				const maxTempo = Math.max(...tracks.map((t) => t.tempo));
+
+				// scale the tempo to a value between 0 and 1
+				const scale = (tempo: number) => (tempo - minTempo) / (maxTempo - minTempo);
+				const availableTracks = tracks.map((track) => ({
+					...track,
+					scale: scale(track.tempo)
+				}));
+				const referenceTempos = methodData.cinderella().map((point) => point.scale);
+				console.log('Reference: ', referenceTempos);
+
+				// Find the track with the closest tempo to the first reference tempo and then remove it from the array
+				for (let i = 0; i < referenceTempos.length; i++) {
+					let closestTrack = availableTracks[0];
+
+					for (const track of availableTracks) {
+						const diff = Math.abs(track.scale - referenceTempos[i]);
+						if (diff < Math.abs(closestTrack.scale - referenceTempos[i])) {
+							closestTrack = track;
+						}
+					}
+
+					console.log(Math.abs(closestTrack.scale - referenceTempos[i]));
+
+					tracks[i] = closestTrack;
+					availableTracks.splice(availableTracks.indexOf(closestTrack), 1);
+				}
+
 				break;
 		}
 	};
