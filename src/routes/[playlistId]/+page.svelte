@@ -119,7 +119,6 @@
 				const minTempo = Math.min(...tracks.map((t) => t.tempo));
 				const maxTempo = Math.max(...tracks.map((t) => t.tempo));
 
-				// scale the tempo to a value between 0 and 1
 				const scale = (tempo: number) => (tempo - minTempo) / (maxTempo - minTempo);
 				const availableTracks = tracks.map((track) => ({
 					...track,
@@ -128,18 +127,19 @@
 				const referenceTempos = methodData.cinderella().map((point) => point.scale);
 				console.log('Reference: ', referenceTempos);
 
-				// Find the track with the closest tempo to the first reference tempo and then remove it from the array
+				let currentDiff = 0;
+
 				for (let i = 0; i < referenceTempos.length; i++) {
 					let closestTrack = availableTracks[0];
 
 					for (const track of availableTracks) {
-						const diff = Math.abs(track.scale - referenceTempos[i]);
-						if (diff < Math.abs(closestTrack.scale - referenceTempos[i])) {
+						const diff = Math.abs(track.scale - referenceTempos[i] + currentDiff);
+						if (diff < Math.abs(closestTrack.scale - referenceTempos[i] + currentDiff)) {
 							closestTrack = track;
 						}
 					}
 
-					console.log(Math.abs(closestTrack.scale - referenceTempos[i]));
+					currentDiff += closestTrack.scale - referenceTempos[i];
 
 					tracks[i] = closestTrack;
 					availableTracks.splice(availableTracks.indexOf(closestTrack), 1);
