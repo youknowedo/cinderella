@@ -30,7 +30,7 @@
 </script>
 
 <svelte:head>
-	<title>Cinderella | Reorder your Spotify playlist</title>
+	<title>Cinderella | Reorder your Spotify playlist based on BPM</title>
 </svelte:head>
 
 <div class="flex h-screen w-screen flex-col items-center justify-center text-center">
