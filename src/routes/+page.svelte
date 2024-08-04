@@ -36,7 +36,7 @@
 		playlists = [];
 		let offset = 0;
 
-		let playlistPage = await sdk.playlists.getUsersPlaylists(user.id, 50);
+		let playlistPage = await sdk.playlists.getUsersPlaylists(user.id, 50, offset);
 
 		while (playlistPage.items.length > 0) {
 			playlists = playlists.concat(playlistPage.items);

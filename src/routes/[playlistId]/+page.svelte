@@ -202,15 +202,17 @@
 	<div class="container py-20">
 		<h1 class="mb-4 text-3xl font-bold">{playlist.name}</h1>
 
-		<div class="mb-4">
-			<Alert.Root variant="default">
-				<CircleAlert class="h-4 w-4" />
-				<Alert.Title>Heads up!</Alert.Title>
-				<Alert.Description>
-					You don't own this playlist. If you continue we'll make a new playlist for you.
-				</Alert.Description>
-			</Alert.Root>
-		</div>
+		{#if !isOwner}
+			<div class="mb-4">
+				<Alert.Root variant="default">
+					<CircleAlert class="h-4 w-4" />
+					<Alert.Title>Heads up!</Alert.Title>
+					<Alert.Description>
+						You don't own this playlist. If you continue we'll make a new playlist for you.
+					</Alert.Description>
+				</Alert.Root>
+			</div>
+		{/if}
 
 		{#if !loading}
 			<div
