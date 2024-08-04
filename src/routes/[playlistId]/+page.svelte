@@ -165,7 +165,9 @@
 						}
 					}
 
-					currentDiff += closestTrack.scale - referenceTempos[i];
+					currentDiff = closestTrack.scale - referenceTempos[i];
+					if (currentDiff > 10) currentDiff = 10;
+					if (currentDiff < -10) currentDiff = -10;
 
 					tracks[i] = closestTrack;
 					availableTracks.splice(availableTracks.indexOf(closestTrack), 1);
