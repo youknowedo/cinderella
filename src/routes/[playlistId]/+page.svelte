@@ -147,7 +147,7 @@
 			case 'mountain':
 			case 'valley':
 				const sortedTracks = tracks.sort((a, b) =>
-					selectedSortMethod == 'mountain' ? a.tempo - b.tempo : b.tempo - a.tempo
+					selectedSortMethod == 'valley' ? a.tempo - b.tempo : b.tempo - a.tempo
 				);
 
 				tracks = [];
