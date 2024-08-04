@@ -46,17 +46,14 @@
 			playlist = await sdk.playlists.getPlaylist($page.params.playlistId);
 			isOwner = playlist.owner.id === user.id;
 
-			tracks = [];
-			for (let i = 0; i < playlist.tracks.items.length; i++) {
-				// Rate limit shii
-				// const { tempo } = await sdk.tracks.audioFeatures(playlist.tracks.items[i].track.id);
-				// tracks.push({ ...playlist.tracks.items[i].track, tempo });
+			const tempos = await sdk.tracks
+				.audioFeatures(playlist.tracks.items.map((t) => t.track.id))
+				.then((f) => f.map((t) => t.tempo));
 
-				tracks.push({
-					name: playlist.tracks.items[i].track.name,
-					tempo: Math.random() * 40
-				});
-			}
+			tracks = playlist.tracks.items.map((t, i) => ({
+				name: t.track.name,
+				tempo: tempos[i]
+			}));
 			originalTracks = [...tracks];
 
 			loading = false;
