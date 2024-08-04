@@ -3,34 +3,41 @@
 	import * as Command from '$lib/components/ui/command/index.js';
 	import * as Popover from '$lib/components/ui/popover/index.js';
 	import { cn } from '$lib/utils.js';
+	import type { Playlist, TrackItem } from '@spotify/web-api-ts-sdk';
 	import Check from 'lucide-svelte/icons/check';
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down';
 	import { tick } from 'svelte';
 
 	export let items: { label: string; value: string }[] = [];
-	export let itemName = 'item';
-	export let disabled = false;
 
 	let open = false;
 	export let value: string | null = null;
+	export let getPlaylists: () => Promise<Playlist<TrackItem>[]>;
+	let loadingPlaylists = false;
 
-	$: selectedLabel = items.find((f) => f.value === value)?.label ?? `Select ${itemName}...`;
+	$: selectedLabel = items.find((f) => f.value === value)?.label ?? `Select playlist...`;
 
-	// We want to refocus the trigger button when the user selects
-	// an item from the list so users can continue navigating the
-	// rest of the form with the keyboard.
-	function closeAndFocusTrigger(triggerId: string) {
+	const closeAndFocusTrigger = (triggerId: string) => {
 		open = false;
 		tick().then(() => {
 			document.getElementById(triggerId)?.focus();
 		});
-	}
+	};
 </script>
 
 <Popover.Root bind:open let:ids>
 	<Popover.Trigger asChild let:builder>
 		<Button
-			{disabled}
+			on:click={() => {
+				loadingPlaylists = true;
+				getPlaylists().then((v) => {
+					loadingPlaylists = false;
+					items = v.map((playlist) => ({
+						label: playlist.name,
+						value: playlist.id
+					}));
+				});
+			}}
 			builders={[builder]}
 			variant="outline"
 			role="combobox"
@@ -43,8 +50,10 @@
 	</Popover.Trigger>
 	<Popover.Content class="w-[200px] p-0">
 		<Command.Root>
-			<Command.Input placeholder="Search {itemName}..." />
-			<Command.Empty>No {itemName} found.</Command.Empty>
+			<Command.Input placeholder="Search playlists..." />
+			<Command.Empty>
+				{loadingPlaylists ? 'Loading playlists...' : 'No playlists found.'}
+			</Command.Empty>
 			<Command.Group>
 				{#each items as item}
 					<Command.Item

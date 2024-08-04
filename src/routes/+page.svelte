@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { browser } from '$app/environment';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { PUBLIC_SPOTIFY_CLIENT_ID, PUBLIC_SPOTIFY_REDIRECT_URI } from '$env/static/public';
 	import Combobox from '$lib/components/Combobox.svelte';
 	import { Button } from '$lib/components/ui/button';
@@ -14,8 +15,6 @@
 
 	let sdk: SpotifyApi | null = null;
 	let user: User | null = null;
-	let playlists: Playlist<TrackItem>[] | null = null;
-	let loadingPlaylists = false;
 	let selectedPlaylist: string | null = null;
 
 	onMount(() => {
@@ -29,13 +28,11 @@
 	});
 
 	const getPlaylists = async () => {
-		if (!sdk) return;
+		if (!sdk) return [];
 
 		if (!user) user = await sdk.currentUser.profile();
 
-		loadingPlaylists = true;
-
-		playlists = [];
+		let playlists: Playlist<TrackItem>[] = [];
 		let offset = 0;
 
 		let playlistPage = await sdk.playlists.getUsersPlaylists(user.id, 50, offset);
@@ -46,29 +43,22 @@
 			playlistPage = await sdk.playlists.getUsersPlaylists(user.id, 50, offset);
 		}
 
-		loadingPlaylists = false;
+		return playlists;
 	};
 </script>
 
 <div class="flex h-screen w-screen flex-col items-center justify-center">
-	<h1>Cinderella</h1>
-	<p>Turn your random ordered playlist into something that makes sense.</p>
+	<h2 class="mb-4 text-4xl">Cinderella</h2>
+	<h1 class="mb-8 text-lg">Turn your random ordered playlist into something that makes sense.</h1>
 
-	<div>
-		<div class="flex gap-2">
-			<Combobox
-				disabled={!playlists}
-				bind:value={selectedPlaylist}
-				items={playlists ? playlists.map((p) => ({ label: p.name, value: p.id })) : []}
-				itemName="playlist"
-			/>
-			<Button disabled={!selectedPlaylist} on:click={() => goto(`/${selectedPlaylist}`)}>
-				Drop the shoe
-			</Button>
-		</div>
-		<Button disabled={loadingPlaylists} on:click={getPlaylists} variant="link" size="sm">
-			{loadingPlaylists ? 'Getting playlists...' : 'Get playlists'}
+	<div class="flex gap-2">
+		<Combobox {getPlaylists} bind:value={selectedPlaylist} />
+		<Button disabled={!selectedPlaylist} on:click={() => goto(`/${selectedPlaylist}`)}>
+			Drop the shoe
 		</Button>
 	</div>
-	<Button on:click={() => sdk?.logOut()}>Logout</Button>
+
+	{#if browser && localStorage.getItem('spotify-sdk:AuthorizationCodeWithPKCEStrategy:token')}
+		<Button class="mt-8" on:click={() => sdk?.logOut() && invalidateAll()}>Logout</Button>
+	{/if}
 </div>

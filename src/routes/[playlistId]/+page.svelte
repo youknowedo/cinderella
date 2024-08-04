@@ -8,13 +8,12 @@
 	import {
 		SpotifyApi,
 		type Playlist,
-		type PlaylistedTrack,
 		type Track,
 		type TrackItem,
 		type User
 	} from '@spotify/web-api-ts-sdk';
+	import Chevron from 'lucide-svelte/icons/chevron-left';
 	import CircleAlert from 'lucide-svelte/icons/circle-alert';
-	import { stringify } from 'postcss';
 	import { onMount } from 'svelte';
 
 	type SortMethod = 'ascending' | 'descending' | 'mountain' | 'valley' | 'cinderella';
@@ -200,7 +199,12 @@
 
 {#if sdk && user && playlist}
 	<div class="container py-20">
-		<h1 class="mb-4 text-3xl font-bold">{playlist.name}</h1>
+		<button on:click={() => goto('/')} class="mb-4 flex items-center gap-2">
+			<Chevron class="-mb-1 h-8" />
+			<h1 class="text-3xl font-bold">
+				{playlist.name}
+			</h1>
+		</button>
 
 		{#if !isOwner}
 			<div class="mb-4">
@@ -244,9 +248,9 @@
 
 				<div class="flex justify-between">
 					<div>
-						<Button on:click={sortPlaylist}>Reorder Playlist</Button>
+						<Button variant="default" on:click={sortPlaylist}>Reorder Playlist</Button>
 						<Button
-							variant="secondary"
+							variant="destructive"
 							on:click={() => {
 								tracks = originalTracks;
 								isReordered = false;
