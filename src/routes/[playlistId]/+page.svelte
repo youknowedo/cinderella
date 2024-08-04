@@ -49,9 +49,9 @@
 <div class="container py-12">
 	<div class="mb-4 flex items-center justify-between">
 		{#if playlist}
-			<button on:click={() => goto('/')} class="flex items-center gap-2">
+			<button on:click={() => goto('/')} class="flex items-center justify-start gap-2">
 				<Chevron class="h-8" />
-				<h1 class="mb-1 text-3xl font-bold">
+				<h1 class="mb-1 text-left text-xl font-bold md:text-3xl">
 					{playlist.name}
 				</h1>
 			</button>
@@ -79,10 +79,7 @@
 		</div>
 	{/if}
 
-	<div
-		class="mb-4 grid rounded-md bg-muted p-1"
-		style="grid-template-columns: repeat({sortMethods.length}, minmax(0, 1fr));"
-	>
+	<div class="mb-4 grid grid-cols-3 rounded-md bg-muted p-1 sm:grid-cols-5">
 		{#each sortMethods as method}
 			<button
 				class="rounded-md py-2 duration-200
