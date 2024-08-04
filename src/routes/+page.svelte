@@ -22,7 +22,9 @@
 		sdk = SpotifyApi.withUserAuthorization(PUBLIC_SPOTIFY_CLIENT_ID, PUBLIC_SPOTIFY_REDIRECT_URI, [
 			'user-read-email',
 			'playlist-modify-public',
-			'playlist-modify-private'
+			'playlist-modify-private',
+			'playlist-read-collaborative',
+			'playlist-read-private'
 		]);
 	});
 
@@ -68,4 +70,5 @@
 			{loadingPlaylists ? 'Getting playlists...' : 'Get playlists'}
 		</Button>
 	</div>
+	<Button on:click={() => sdk?.logOut()}>Logout</Button>
 </div>
