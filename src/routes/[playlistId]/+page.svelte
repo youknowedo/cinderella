@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { PUBLIC_SPOTIFY_CLIENT_ID, PUBLIC_SPOTIFY_REDIRECT_URI } from '$env/static/public';
 	import Chart from '$lib/components/Chart.svelte';
@@ -9,6 +10,7 @@
 		type Playlist,
 		type PlaylistedTrack,
 		type Track,
+		type TrackItem,
 		type User
 	} from '@spotify/web-api-ts-sdk';
 	import CircleAlert from 'lucide-svelte/icons/circle-alert';
@@ -28,11 +30,12 @@
 	let loading = true;
 	let sdk: SpotifyApi | null = null;
 	let user: User | null = null;
-	let playlist: Playlist<Track> | null = null;
+	let playlist: Playlist<TrackItem> | null = null;
 	let isOwner = false;
 	let selectedSortMethod: SortMethod = 'ascending';
-	let tracks: { name: string; tempo: number }[] | null = null;
-	let originalTracks: { name: string; tempo: number }[] | null = null;
+	let tracks: { name: string; tempo: number; uri: string }[] | null = null;
+	let originalTracks: { name: string; tempo: number; uri: string }[] | null = null;
+	let isReordered = false;
 
 	onMount(() =>
 		(async () => {
@@ -52,7 +55,8 @@
 
 			tracks = playlist.tracks.items.map((t, i) => ({
 				name: t.track.name,
-				tempo: tempos[i]
+				tempo: tempos[i] ?? 0,
+				uri: t.track.uri
 			}));
 			originalTracks = [...tracks];
 
@@ -131,6 +135,8 @@
 	const sortPlaylist = async () => {
 		if (!sdk || !playlist || !tracks) return;
 
+		isReordered = true;
+
 		switch (selectedSortMethod) {
 			case 'ascending':
 				tracks = tracks.sort((a, b) => a.tempo - b.tempo);
@@ -138,7 +144,7 @@
 			case 'descending':
 				tracks = tracks.sort((a, b) => b.tempo - a.tempo);
 				break;
-			// same sort method for mountain, valley and cinderella
+			// same sort method for mountain & valley
 			case 'mountain':
 			case 'valley':
 				const sortedTracks = tracks.sort((a, b) =>
@@ -234,11 +240,39 @@
 					})}
 				/>
 
-				<Button on:click={sortPlaylist}>Reorder Playlist</Button>
-				<Button
-					variant="secondary"
-					on:click={() => (tracks = originalTracks && [...originalTracks])}>Reset</Button
-				>
+				<div class="flex justify-between">
+					<div>
+						<Button on:click={sortPlaylist}>Reorder Playlist</Button>
+						<Button
+							variant="secondary"
+							on:click={() => {
+								tracks = originalTracks;
+								isReordered = false;
+							}}>Reset</Button
+						>
+					</div>
+					<Button
+						disabled={!isReordered}
+						on:click={async () => {
+							if (!sdk || !tracks || !user || !playlist) return;
+
+							if (!isOwner)
+								playlist = await sdk.playlists.createPlaylist(user.id, {
+									name: `${playlist.name} - Reordered`,
+									description: `Reordered by tempo`,
+									public: false
+								});
+							sdk.playlists.updatePlaylistItems(playlist.id, {
+								uris: tracks.map((t) => t.uri)
+							});
+
+							goto(`/${playlist.id}`);
+							window.open(`https://open.spotify.com/playlist/${playlist.id}`, '_blank');
+						}}
+					>
+						{isOwner ? 'Update' : 'Create'} playlist
+					</Button>
+				</div>
 			{/if}
 		{/if}
 	</div>
