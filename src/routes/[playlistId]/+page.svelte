@@ -34,6 +34,19 @@
 	let tracks: { name: string; tempo: number }[] | null = null;
 	let originalTracks: { name: string; tempo: number }[] | null = null;
 
+	const fetchSongTempoFromSpotify = async (track: PlaylistedTrack) => {
+		if (!sdk) return 0;
+
+		const { tempo } = await sdk.tracks.audioFeatures(track.track.id);
+
+		await fetch('/api/tempo/add', {
+			method: 'POST',
+			body: JSON.stringify({ id: track.track.id, tempo })
+		});
+
+		return tempo;
+	};
+
 	onMount(() =>
 		(async () => {
 			sdk = SpotifyApi.withUserAuthorization(
@@ -46,15 +59,20 @@
 			playlist = await sdk.playlists.getPlaylist($page.params.playlistId);
 			isOwner = playlist.owner.id === user.id;
 
+			const tempos = await fetch('/api/tempo/get', {
+				method: 'POST',
+				body: JSON.stringify(playlist.tracks.items.map((t) => t.track.id))
+			}).then(async (res) => (await res.json()) as { id: string; tempo: number }[]);
+			console.log(tempos);
+
 			tracks = [];
 			for (let i = 0; i < playlist.tracks.items.length; i++) {
-				// Rate limit shii
-				// const { tempo } = await sdk.tracks.audioFeatures(playlist.tracks.items[i].track.id);
-				// tracks.push({ ...playlist.tracks.items[i].track, tempo });
-
+				const tempo =
+					tempos.find((t) => t.id === playlist?.tracks.items[i].track.id)?.tempo ?? // use the tempo from the database if available
+					(await fetchSongTempoFromSpotify(playlist.tracks.items[i])); // otherwise fetch it from the API
 				tracks.push({
 					name: playlist.tracks.items[i].track.name,
-					tempo: Math.random() * 40
+					tempo: tempo
 				});
 			}
 			originalTracks = [...tracks];

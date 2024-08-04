@@ -1,0 +1,40 @@
+{
+  "id": "8dca5dac-f4eb-45f4-9d19-0c205e4e2df2",
+  "prevId": "03b4d219-4f6b-472f-bb70-0b34687677ef",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.song": {
+      "name": "song",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "tempo": {
+          "name": "tempo",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    }
+  },
+  "enums": {},
+  "schemas": {
+    "cinderella": "cinderella"
+  },
+  "sequences": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

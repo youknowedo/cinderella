@@ -1,8 +1,8 @@
-import { decimal, pgSchema, pgTable, text } from 'drizzle-orm/pg-core';
+import { doublePrecision, pgSchema, pgTable, text } from 'drizzle-orm/pg-core';
 
 export const schema = pgSchema('cinderella');
 
-export const song = pgTable('song', {
+export const songTable = pgTable('song', {
 	id: text('id').primaryKey(),
-	tempo: decimal('tempo')
+	tempo: doublePrecision('tempo').notNull()
 });
