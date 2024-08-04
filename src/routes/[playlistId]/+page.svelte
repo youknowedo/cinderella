@@ -140,23 +140,13 @@
 				break;
 			// same sort method for mountain, valley and cinderella
 			case 'mountain':
-				const tracksDescending = tracks.sort((a, b) => b.tempo - a.tempo);
-				tracks = [];
-
-				tracksDescending.forEach((track, i) => {
-					if (i % 2 === 0) {
-						tracks!.push(track);
-					} else {
-						tracks!.unshift(track);
-					}
-				});
-
-				break;
 			case 'valley':
-				const tracksAscending = tracks.sort((a, b) => a.tempo - b.tempo);
-				tracks = [];
+				const sortedTracks = tracks.sort((a, b) =>
+					selectedSortMethod == 'mountain' ? a.tempo - b.tempo : b.tempo - a.tempo
+				);
 
-				tracksAscending.forEach((track, i) => {
+				tracks = [];
+				sortedTracks.forEach((track, i) => {
 					if (i % 2 === 0) {
 						tracks!.push(track);
 					} else {
