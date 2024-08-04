@@ -46,6 +46,10 @@
 	);
 </script>
 
+<svelte:head>
+	<title>Edit {playlist ? playlist.name : 'playlist'} | Cinderella</title>
+</svelte:head>
+
 <div class="container py-12">
 	<div class="mb-4 flex items-center justify-between">
 		{#if playlist}

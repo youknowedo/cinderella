@@ -29,6 +29,10 @@
 	};
 </script>
 
+<svelte:head>
+	<title>Cinderella | Reorder your Spotify playlist</title>
+</svelte:head>
+
 <div class="flex h-screen w-screen flex-col items-center justify-center text-center">
 	<h2 class="mb-4 text-4xl">Cinderella</h2>
 	<h1 class="xs:text-lg mb-8">
