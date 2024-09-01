@@ -1,3 +1,5 @@
+Made for Hack Club Arcade with GitHub Copilot as an assistant
+
 # 👸 cinderella
 
 Reorder your Spotify playlists based on BPM. Turn your random ordered playlist into something that makes sense. 
