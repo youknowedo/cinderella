@@ -14,6 +14,8 @@ Made with SvelteKit and the Spotify Web API
 5. Click on *Update Playlist*
 6. Enjoy!
 
+![cinderella startpage](./static/web.png)
+
 ### Self-host/Development
 
 ```bash
